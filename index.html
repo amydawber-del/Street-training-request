@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Training — Street.co.uk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens ───────────────────────────────────────────── */
+:root {
+  --black:   #19191e;
+  --brand:   #242326;
+  --yellow:  #f1c238;
+  --blue:    #2147f4;
+  --blue-lt: #eff3ff;
+  --green:   #22a06b;
+  --red:     #c0303d;
+  --grey-10: #f8f8f8;
+  --grey-20: #e5e5e5;
+  --grey-30: #ccc;
+  --grey-40: #b2b2b2;
+  --grey-50: #777989;
+  --grey-70: #4c4d57;
+  --grey-90: #19191e;
+  --radius:  10px;
+  --step-active: var(--yellow);
+  --step-done:   var(--green);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--grey-90);
+  background: #f4f5f8;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.site-header {
+  background: var(--black);
+  padding: 0 32px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: #fff;
+  line-height: 1;
+}
+.logo-dot { color: var(--yellow); }
+.logo-sub {
+  font-size: 9px;
+  font-weight: 400;
+  opacity: 0.5;
+  margin-left: 1px;
+}
+.header-divider {
+  width: 1px; height: 18px;
+  background: rgba(255,255,255,0.14);
+}
+.header-tagline {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 400;
+}
+.header-spacer { flex: 1; }
+.header-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(241,194,56,0.15);
+  color: var(--yellow);
+  border: 1px solid rgba(241,194,56,0.25);
+}
+
+/* ── Page layout ─────────────────────────────────────────────── */
+.page-wrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px 60px;
+}
+.form-shell {
+  width: 100%;
+  max-width: 680px;
+}
+
+/* ── Form card ───────────────────────────────────────────────── */
+.form-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 40px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+/* ── Form header ─────────────────────────────────────────────── */
+.form-hdr {
+  background: linear-gradient(135deg, #19191e 0%, #2d2b32 100%);
+  padding: 28px 32px 24px;
+}
+.form-hdr-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 6px;
+}
+.form-hdr-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.form-hdr-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+}
+
+/* ── Progress bar ────────────────────────────────────────────── */
+.progress-wrap {
+  padding: 20px 32px 0;
+}
+.progress-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-bottom: 18px;
+}
+.step-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+  background: rgba(0,0,0,0.06);
+  color: var(--grey-50);
+  border: 2px solid var(--grey-20);
+  transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.2s;
+  z-index: 1;
+  cursor: default;
+}
+.step-dot.active {
+  background: var(--yellow);
+  color: #1a1a1a;
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 4px rgba(241,194,56,0.18);
+  transform: scale(1.08);
+}
+.step-dot.done {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+.step-label {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+  color: var(--grey-40);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.step-dot.active .step-label { color: var(--yellow); }
+.step-dot.done  .step-label  { color: var(--green); }
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--grey-20);
+  transition: background 0.3s;
+  margin: 0 2px;
+}
+.step-line.done { background: var(--green); }
+
+/* ── Panes ───────────────────────────────────────────────────── */
+.form-body { padding: 28px 32px; }
+.pane { display: none; }
+.pane.active { display: block; animation: pane-in 0.2s ease; }
+@keyframes pane-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.pane-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--grey-90);
+  margin-bottom: 3px;
+  letter-spacing: -0.2px;
+}
+.pane-sub {
+  font-size: 12px;
+  color: var(--grey-50);
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+
+/* ── Fields ──────────────────────────────────────────────────── */
+.field { margin-bottom: 16px; }
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--grey-70);
+  margin-bottom: 6px;
+}
+.field-label.req::after { content: ' *'; color: var(--red); }
+.field-input,
+.field-select,
+.field-textarea {
+  width: 100%;
+  border: 1.5px solid var(--grey-20);
+  border-radius: 8px;
+  padding: 10px 13px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--grey-90);
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  resize: vertical;
+}
+.field-input:focus,
+.field-select:focus,
+.field-textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(33,71,244,0.1);
+}
+.field-input.err, .field-select.err, .field-textarea.err {
+  border-color: var(--red);
+  background: #fff5f5;
+}
+.field-hint {
+  font-size: 11px;
+  color: var(--grey-50);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.field-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 520px) { .field-2col { grid-template-columns: 1fr; } }
+
+/* ── User search ─────────────────────────────────────────────── */
+.search-wrap { position: relative; }
+.search-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1.5px solid var(--grey-20);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+}
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 2px;
+  transition: background 0.1s;
+}
+.search-row:hover { background: var(--blue-lt); }
+.search-row:focus { background: var(--blue-lt); outline: none; }
+.search-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.search-name { font-size: 13px; font-weight: 600; color: var(--grey-90); }
+.search-dept { font-size: 11px; color: var(--grey-50); }
+.search-add-row {
+  border-top: 1px solid var(--grey-20);
+  margin: 2px;
+  padding: 9px 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  border-radius: 8px;
+  transition: background 0.1s;
+}
+.search-add-row:hover { background: var(--blue-lt); }
+.search-clear {
+  position: absolute;
+  right: 11px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  font-size: 15px;
+  color: var(--grey-40);
+  cursor: pointer;
+  display: none;
+  line-height: 1;
+  padding: 2px 4px;
+}
+.user-chip {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f0f4ff;
+  border: 1.5px solid #c7d4ff;
+  border-radius: 8px;
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+.user-chip.show { display: flex; }
+.user-chip-info .name { font-size: 13px; font-weight: 600; color: var(--grey-90); }
+.user-chip-info .sub  { font-size: 11px; color: var(--grey-50); margin-top: 1px; }
+.chip-clear { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 16px; color: var(--grey-40); padding: 2px 6px; line-height: 1; }
+.chip-clear:hover { color: var(--grey-70); }
+
+/* ── New user fields ─────────────────────────────────────────── */
+.new-user-box {
+  display: none;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 8px;
+}
+.new-user-box .info-bar {
+  font-size: 12px;
+  color: #1e40af;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+/* ── Radio / Checkbox choices ─────────────────────────────────── */
+.choice-group { display: flex; flex-direction: column; gap: 8px; }
+.choice-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 13px;
+  border: 1.5px solid var(--grey-20);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.choice-item:hover { border-color: #a5b4fc; background: #f6f8ff; }
+.choice-item input[type=radio],
+.choice-item input[type=checkbox] {
+  margin-top: 1px;
+  width: 15px; height: 15px;
+  accent-color: var(--blue);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.choice-item:has(input:checked) {
+  border-color: var(--blue);
+  background: var(--blue-lt);
+}
+.choice-label { font-size: 13px; font-weight: 600; color: var(--grey-90); line-height: 1.4; }
+.choice-sub   { font-size: 11px; color: var(--grey-50); font-weight: 400; margin-top: 1px; }
+
+/* ── Radio chips (horizontal) ─────────────────────────────────── */
+.chip-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--grey-20);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--grey-70);
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.chip-label:hover { border-color: #a5b4fc; color: var(--blue); }
+.chip-label input { width: 13px; height: 13px; accent-color: var(--blue); }
+.chip-label:has(input:checked) {
+  border-color: var(--blue);
+  background: var(--blue-lt);
+  color: var(--blue);
+}
+
+/* ── Location buttons ─────────────────────────────────────────── */
+.loc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.loc-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 18px 14px;
+  border: 2px solid var(--grey-20);
+  border-radius: 10px;
+  cursor: pointer;
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.loc-btn:hover { border-color: #a5b4fc; background: #f6f8ff; }
+.loc-btn.selected { border-color: var(--blue); background: var(--blue-lt); }
+.loc-btn-icon { font-size: 22px; }
+.loc-btn-label { font-size: 13px; font-weight: 700; color: var(--grey-90); }
+.loc-btn-sub   { font-size: 10px; color: var(--grey-50); }
+
+/* ── Equipment chips ─────────────────────────────────────────── */
+.equip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.equip-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--grey-20);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--grey-70);
+  background: #fff;
+  transition: all 0.12s;
+}
+.equip-chip:hover { border-color: #a5b4fc; color: var(--blue); }
+.equip-chip input { width: 13px; height: 13px; accent-color: var(--blue); }
+.equip-chip:has(input:checked) { border-color: var(--blue); background: var(--blue-lt); color: var(--blue); }
+
+/* ── Section heading ─────────────────────────────────────────── */
+.section-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--grey-70);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--grey-20);
+}
+
+/* ── Info/warning box ─────────────────────────────────────────── */
+.info-box {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.info-box.blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.info-box.amber { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.info-box.green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+
+/* ── HQ confirm box ───────────────────────────────────────────── */
+.hq-box {
+  display: none;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid #86efac;
+}
+.hq-box-hdr {
+  background: #f0fdf4;
+  padding: 11px 14px;
+  border-bottom: 1px solid #bbf7d0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+}
+.hq-box-body { background: #fff; padding: 12px 14px; }
+
+/* ── Footer / navigation ─────────────────────────────────────── */
+.form-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--grey-20);
+  background: var(--grey-10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.footer-hint { font-size: 11px; color: var(--grey-50); flex: 1; }
+.footer-btns { display: flex; gap: 8px; align-items: center; }
+.btn {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary  { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: #1a39d4; }
+.btn-ghost    { background: none; border: 1.5px solid var(--grey-30); color: var(--grey-70); }
+.btn-ghost:hover { background: #fff; color: var(--grey-90); }
+.btn-skip     { background: none; border: none; color: var(--grey-50); font-size: 12px; padding: 8px 10px; }
+.btn-skip:hover { color: var(--grey-70); }
+.btn-success  { background: var(--green); color: #fff; }
+.btn-success:hover { background: #1a8055; }
+
+/* ── Success screen ───────────────────────────────────────────── */
+.success-screen { text-align: center; padding: 52px 32px; }
+.success-icon { font-size: 56px; margin-bottom: 18px; }
+.success-title { font-size: 22px; font-weight: 700; color: var(--grey-90); margin-bottom: 8px; letter-spacing: -0.3px; }
+.success-msg   { font-size: 14px; color: var(--grey-50); line-height: 1.7; max-width: 380px; margin: 0 auto 28px; }
+.success-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #166534;
+  margin-bottom: 24px;
+}
+.start-over-btn {
+  font-size: 12px;
+  color: var(--grey-50);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Toast ────────────────────────────────────────────────────── */
+.toast-host {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--black);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  border-left: 3px solid var(--blue);
+  animation: toast-in 0.2s ease;
+  pointer-events: all;
+}
+.toast.success { border-left-color: var(--green); }
+.toast.error   { border-left-color: var(--red); }
+@keyframes toast-in {
+  from { transform: translateX(20px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+/* ── Loading overlay ──────────────────────────────────────────── */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(25,25,30,0.5);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.loading-overlay.show { display: flex; }
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top-color: var(--yellow);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Footer bar ───────────────────────────────────────────────── */
+.site-footer {
+  background: var(--black);
+  padding: 14px 32px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+.site-footer a { color: rgba(255,255,255,0.35); text-decoration: none; }
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .site-header { padding: 0 16px; }
+  .form-hdr, .form-body { padding-left: 20px; padding-right: 20px; }
+  .progress-wrap { padding: 16px 20px 0; }
+  .form-footer { padding: 14px 20px; flex-direction: column; align-items: stretch; }
+  .footer-btns { justify-content: flex-end; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="logo">STREET<span class="logo-dot">.</span><span class="logo-sub">CO.UK</span></div>
+  <div class="header-divider"></div>
+  <div class="header-tagline">Training Request</div>
+  <div class="header-spacer"></div>
+  <div class="header-badge">Internal Form</div>
+</header>
+
+<!-- ── Page ───────────────────────────────────────────────────── -->
+<div class="page-wrap">
+  <div class="form-shell">
+    <div class="form-card">
+
+      <!-- Form header -->
+      <div class="form-hdr">
+        <div class="form-hdr-eyebrow">Street Onboarding Team</div>
+        <div class="form-hdr-title">Request a Training Day</div>
+        <div class="form-hdr-desc">Submit a training request on behalf of a client. Our team will review it and assign a trainer shortly.</div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-track" id="progressTrack"></div>
+      </div>
+
+      <!-- Panes -->
+      <div class="form-body">
+
+        <!-- Step 1: Your Details -->
+        <div class="pane active" id="pane1">
+          <div class="pane-title">Your Details</div>
+          <div class="pane-sub">Search for your name below, or add yourself if you're not listed.</div>
+
+          <div class="field">
+            <label class="field-label req">Who is submitting this request?</label>
+            <div class="search-wrap">
+              <input id="userSearch" type="text" class="field-input" placeholder="Start typing your name…"
+                autocomplete="off" spellcheck="false"
+                style="padding-right: 32px;"
+                oninput="handleUserSearch()" onkeydown="userSearchKey(event)">
+              <button class="search-clear" id="searchClear" onclick="clearUserSearch()">&#10005;</button>
+              <div class="search-dropdown" id="searchDropdown"></div>
+            </div>
+            <div class="user-chip" id="userChip">
+              <div class="search-avatar" id="chipAvatar"></div>
+              <div class="user-chip-info">
+                <div class="name" id="chipName"></div>
+                <div class="sub"  id="chipSub"></div>
+              </div>
+              <button class="chip-clear" onclick="clearUserSearch()">&#10005;</button>
+            </div>
+          </div>
+
+          <!-- New user inline form -->
+          <div class="new-user-box" id="newUserBox">
+            <div class="info-box blue" style="margin-bottom:12px;">
+              <span>ℹ️</span>
+              <span>You'll be added as a <strong>Viewer</strong>. An admin can update your role later.</span>
+            </div>
+            <div class="field-2col">
+              <div class="field">
+                <label class="field-label req">First Name</label>
+                <input type="text" class="field-input" id="newFirst" placeholder="e.g. Sarah">
+              </div>
+              <div class="field">
+                <label class="field-label req">Last Name</label>
+                <input type="text" class="field-input" id="newLast" placeholder="e.g. Jones">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label req">Department / Team</label>
+              <select class="field-select" id="newDept">
+                <option value="">— Select department —</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Existing user team (only shown when user selected) -->
+          <div class="field" id="existingTeamRow" style="display:none;">
+            <label class="field-label">Your Team / Department</label>
+            <select class="field-select" id="existingTeam">
+              <option value="">— Select department —</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Invoice Value Quoted <span style="font-weight:400;color:var(--grey-50);">optional</span></label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--grey-50);font-weight:600;">£</span>
+              <input type="number" class="field-input" id="quotedValue" placeholder="0.00" min="0" step="0.01" style="padding-left:28px;">
+            </div>
+            <div class="field-hint">Leave blank if no price has been discussed yet.</div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Referral Notes <span style="font-weight:400;color:var(--grey-50);">optional</span></label>
+            <input type="text" class="field-input" id="referralNotes" placeholder="e.g. Client mentioned this during onboarding call, keen to book ASAP">
+          </div>
+
+          <!-- Hidden fields -->
+          <input type="hidden" id="selectedUserName">
+          <input type="hidden" id="selectedUserTeam">
+        </div>
+
+        <!-- Step 2: Contact & Company -->
+        <div class="pane" id="pane2">
+          <div class="pane-title">Contact &amp; Company Details</div>
+          <div class="pane-sub">Tell us about the client and who will be authorising the training.</div>
+
+          <div class="field">
+            <label class="field-label req">Email Address</label>
+            <input type="email" class="field-input" id="email" placeholder="client@example.com">
+          </div>
+          <div class="field">
+            <label class="field-label req">Company / Business Name</label>
+            <input type="text" class="field-input" id="company" placeholder="e.g. Acorn Estates">
+          </div>
+          <div class="field">
+            <label class="field-label req">Client Stakeholder Name &amp; Phone</label>
+            <input type="text" class="field-input" id="stakeholder" placeholder="Full name + phone of the person authorising training &amp; costs">
+            <div class="field-hint">The decision-maker who can approve training and costs.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Attendees</label>
+            <textarea class="field-input field-textarea" id="attendees" rows="3" placeholder="Names, job titles and roles of everyone attending."></textarea>
+          </div>
+          <div class="field-2col">
+            <div class="field">
+              <label class="field-label">Target Go-Live Date</label>
+              <input type="date" class="field-input" id="goLive">
+              <div class="field-hint">When you're working towards going live with Street.</div>
+            </div>
+            <div class="field">
+              <label class="field-label">Preferred Training Date</label>
+              <input type="date" class="field-input" id="preferredDate">
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Training Package -->
+        <div class="pane" id="pane3">
+          <div class="pane-title">Training Package &amp; Goals</div>
+          <div class="pane-sub">Help us understand what you need so we can tailor the session.</div>
+
+          <div class="field">
+            <label class="field-label req">What type of training are you interested in?</label>
+            <div class="choice-group">
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Personalised Onsite Training - 1 Day">
+                <div>
+                  <div class="choice-label">Personalised Onsite Training — 1 Day</div>
+                  <div class="choice-sub">One full day at your offices covering core workflows</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Personalised Onsite Training - 2 Days">
+                <div>
+                  <div class="choice-label">Personalised Onsite Training — 2 Days</div>
+                  <div class="choice-sub">Two days for a deeper training programme</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Lettings Accounting Training + Go-Live Support">
+                <div>
+                  <div class="choice-label">Lettings Accounting + Go-Live Support</div>
+                  <div class="choice-sub">Specialist accounting training with hands-on go-live assistance</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Live Training at Street HQ (Manchester)">
+                <div>
+                  <div class="choice-label">Live Training at Street HQ — Manchester</div>
+                  <div class="choice-sub">Come to our Manchester office for an immersive session</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Online Refresher">
+                <div>
+                  <div class="choice-label">Online Refresher</div>
+                  <div class="choice-sub">A focused virtual session to refresh specific areas</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Not sure yet - please help me choose">
+                <div>
+                  <div class="choice-label">Not sure yet — please help me choose</div>
+                  <div class="choice-sub">Tell us your goals and we'll recommend the right package</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:20px;">
+            <label class="field-label req">How familiar is your team with Street?</label>
+            <div class="chip-group">
+              <label class="chip-label"><input type="radio" name="familiarity" value="Complete Beginners"> Complete Beginners</label>
+              <label class="chip-label"><input type="radio" name="familiarity" value="Mixed Experience"> Mixed Experience</label>
+              <label class="chip-label"><input type="radio" name="familiarity" value="Experienced - need refresher"> Experienced — Need Refresher</label>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:20px;">
+            <label class="field-label req">Which areas of Street do you want to cover?</label>
+            <div class="choice-group">
+              <label class="choice-item"><input type="checkbox" name="areas" value="Sales"> <div><div class="choice-label">Sales</div></div></label>
+              <label class="choice-item"><input type="checkbox" name="areas" value="Lettings Front End"> <div><div class="choice-label">Lettings Front End</div></div></label>
+              <label class="choice-item"><input type="checkbox" name="areas" value="Accounting"> <div><div class="choice-label">Accounting</div></div></label>
+              <label class="choice-item"><input type="checkbox" name="areas" value="Property Management"> <div><div class="choice-label">Property Management</div></div></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Priorities & Logistics -->
+        <div class="pane" id="pane4">
+          <div class="pane-title">Priorities &amp; Logistics</div>
+          <div class="pane-sub">Help us make the day run smoothly and as valuable as possible.</div>
+
+          <div class="field">
+            <label class="field-label req">Top 3 priorities for this training day</label>
+            <textarea class="field-input field-textarea" id="priorities" rows="3" placeholder="e.g. 1. Compliance workflows&#10;2. Sales progression tracking&#10;3. Report building"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Specific features or workflows to cover</label>
+            <textarea class="field-input field-textarea" id="features" rows="2" placeholder="e.g. sales progression, lettings compliance, accounting…"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Current challenges or frustrations</label>
+            <textarea class="field-input field-textarea" id="challenges" rows="2" placeholder="Anything your team struggles with day-to-day"></textarea>
+          </div>
+
+          <div class="section-heading" style="margin-top:20px;">Logistics</div>
+
+          <div class="field">
+            <label class="field-label">Training Location</label>
+            <div class="loc-grid">
+              <button type="button" class="loc-btn" id="locHQBtn" onclick="selectLocation('hq')">
+                <span class="loc-btn-icon">🏢</span>
+                <span class="loc-btn-label">Street HQ</span>
+                <span class="loc-btn-sub">North Square, Manchester</span>
+              </button>
+              <button type="button" class="loc-btn" id="locOtherBtn" onclick="selectLocation('other')">
+                <span class="loc-btn-icon">📍</span>
+                <span class="loc-btn-label">Other Location</span>
+                <span class="loc-btn-sub">I'll provide the details</span>
+              </button>
+            </div>
+
+            <!-- HQ confirm -->
+            <div class="hq-box" id="hqBox">
+              <div class="hq-box-hdr">✓ Street HQ — North Square, 11–13 Spear St, Manchester M1 1JU</div>
+              <div class="hq-box-body">
+                <label>
+                  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--grey-70);margin-bottom:6px;">Dietary Requirements</div>
+                  <textarea class="field-input field-textarea" id="dietaryHQ" rows="2" placeholder="List any dietary requirements… Leave blank if none."></textarea>
+                </label>
+              </div>
+            </div>
+
+            <!-- Other location -->
+            <div id="otherLocBox" style="display:none;margin-top:4px;">
+              <div class="field">
+                <label class="field-label req">Meeting Room Name &amp; Address</label>
+                <input type="text" class="field-input" id="locAddress" placeholder="e.g. The Boardroom, 14 King Street, Leeds LS1 2AB">
+                <div class="field-hint">Please include the full postcode.</div>
+              </div>
+              <div class="field">
+                <label class="field-label">Parking &amp; Access Instructions</label>
+                <textarea class="field-input field-textarea" id="locParking" rows="2" placeholder="e.g. NCP car park on the right…"></textarea>
+              </div>
+              <div class="field">
+                <label class="field-label">Available Equipment</label>
+                <div class="equip-group" id="equipGrid">
+                  <label class="equip-chip"><input type="checkbox" value="Projector"> Projector</label>
+                  <label class="equip-chip"><input type="checkbox" value="Large Screen / TV"> Large Screen / TV</label>
+                  <label class="equip-chip"><input type="checkbox" value="Wi-Fi"> Wi-Fi</label>
+                  <label class="equip-chip"><input type="checkbox" value="HDMI Cable"> HDMI Cable</label>
+                  <label class="equip-chip"><input type="checkbox" value="Extension Lead"> Extension Lead</label>
+                  <label class="equip-chip"><input type="checkbox" value="Whiteboard"> Whiteboard</label>
+                  <label class="equip-chip"><input type="checkbox" value="Video Conferencing"> Video Conferencing</label>
+                </div>
+                <input type="text" class="field-input" id="equipOther" placeholder="Any other equipment…" style="margin-top:8px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-heading">Follow-Up</div>
+          <div class="field">
+            <label class="field-label">How would you like post-training support?</label>
+            <div class="choice-group">
+              <label class="choice-item"><input type="checkbox" name="followUp" value="Email recap & resources"> <div><div class="choice-label">Email recap &amp; resources</div></div></label>
+              <label class="choice-item"><input type="checkbox" name="followUp" value="Follow-up call"> <div><div class="choice-label">Follow-up call</div></div></label>
+              <label class="choice-item"><input type="checkbox" name="followUp" value="Additional training session"> <div><div class="choice-label">Additional training session</div></div></label>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Anything else we should know?</label>
+            <textarea class="field-input field-textarea" id="anythingElse" rows="2" placeholder="Any other context that'll help us make the session valuable"></textarea>
+          </div>
+        </div>
+
+        <!-- Step 5: Success -->
+        <div class="pane" id="pane5">
+          <div class="success-screen">
+            <div class="success-icon">✅</div>
+            <div class="success-title">Request submitted!</div>
+            <div class="success-msg" id="successMsg">Your training request has been sent. Our team will review it and be in touch soon.</div>
+            <div class="success-badge">
+              <span>📋</span>
+              <span id="successRef">Training Request logged</span>
+            </div>
+            <br>
+            <button class="start-over-btn" onclick="resetForm()">Submit another request</button>
+          </div>
+        </div>
+
+      </div><!-- /form-body -->
+
+      <!-- Footer nav (hidden on success) -->
+      <div class="form-footer" id="formFooter">
+        <div class="footer-hint" id="footerHint"></div>
+        <div class="footer-btns">
+          <button class="btn btn-ghost" id="backBtn" onclick="prevStep()" style="display:none;">← Back</button>
+          <button class="btn btn-skip" id="skipBtn" onclick="skipStep()" style="display:none;">Skip for now →</button>
+          <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Continue →</button>
+        </div>
+      </div>
+
+    </div><!-- /form-card -->
+  </div>
+</div>
+
+<footer class="site-footer">
+  &copy; 2025 Street.co.uk &nbsp;·&nbsp; <a href="https://street.co.uk">street.co.uk</a>
+</footer>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
+<div class="toast-host" id="toastHost"></div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCvBhFSPyyoaVsui0DCxvGQQa0V7e_UCJ5LfqvcSysTHTFlNRcx4ewlET5TyouJ0ZYow/exec';
+
+// ── State ──────────────────────────────────────────────────────
+let step        = 1;
+const TOTAL     = 4;
+const SKIPPABLE = new Set([3, 4]);
+const SKIP_LABELS = { 3: 'Training Details', 4: 'Priorities & Logistics' };
+let skippedSteps = new Set();
+
+let users       = [];
+let departments = [];
+let selectedLocation = '';
+
+// ── Init ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  renderProgress();
+  await Promise.all([loadUsers(), loadDepartments()]);
+});
+
+// ── Load users from Apps Script ────────────────────────────────
+async function loadUsers() {
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=getUsers&t=' + Date.now(), { redirect: 'follow' });
+    const j = await r.json();
+    if (j.success && j.users) users = j.users.filter(u => u.active !== false);
+  } catch (e) {
+    console.warn('Could not load users:', e.message);
+  }
+}
+
+// ── Load departments ───────────────────────────────────────────
+async function loadDepartments() {
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=getDepartments&t=' + Date.now(), { redirect: 'follow' });
+    const j = await r.json();
+    if (j.success && j.departments) {
+      departments = j.departments;
+      populateDeptDropdowns();
+    }
+  } catch (e) {
+    console.warn('Could not load departments:', e.message);
+  }
+}
+
+function populateDeptDropdowns() {
+  ['newDept', 'existingTeam'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">— Select department —</option>';
+    departments.forEach(d => {
+      sel.innerHTML += `<option value="${esc(d.name)}">${esc(d.name)}</option>`;
+    });
+    if (prev) sel.value = prev;
+  });
+}
+
+// ── User search ────────────────────────────────────────────────
+function handleUserSearch() {
+  const q   = document.getElementById('userSearch').value.trim().toLowerCase();
+  const box = document.getElementById('searchDropdown');
+  if (q.length < 1) { box.style.display = 'none'; return; }
+
+  const matches = users.filter(u => u.name.toLowerCase().includes(q)).slice(0, 8);
+  let html = matches.map(u => {
+    const initials = u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const dept = esc(u.department || u.jobTitle || '');
+    return `<div class="search-row" tabindex="0" data-name="${esc(u.name)}"
+      onmousedown="selectUser('${u.name.replace(/'/g, "\\'")}')"
+      onkeydown="if(event.key==='Enter')selectUser('${u.name.replace(/'/g, "\\'")}')">
+      <div class="search-avatar" style="background:${u.color||'#2147f4'};">${initials}</div>
+      <div><div class="search-name">${esc(u.name)}</div><div class="search-dept">${dept}</div></div>
+    </div>`;
+  }).join('');
+
+  html += `<div class="search-add-row" onmousedown="showNewUser()">
+    <span style="font-size:18px;">＋</span> Add me as a new user…
+  </div>`;
+
+  box.innerHTML = html;
+  box.style.display = 'block';
+}
+
+function userSearchKey(e) {
+  const box  = document.getElementById('searchDropdown');
+  const rows = box.querySelectorAll('.search-row');
+  if (e.key === 'ArrowDown' && rows.length) { e.preventDefault(); rows[0].focus(); }
+  if (e.key === 'Escape') box.style.display = 'none';
+  if (e.key === 'Enter' && rows.length === 1) selectUser(rows[0].dataset.name);
+}
+
+function selectUser(name) {
+  const u = users.find(t => t.name === name);
+  document.getElementById('searchDropdown').style.display = 'none';
+  document.getElementById('userSearch').value = name;
+  document.getElementById('searchClear').style.display = 'block';
+  document.getElementById('newUserBox').style.display = 'none';
+
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const chip = document.getElementById('userChip');
+  document.getElementById('chipAvatar').textContent = initials;
+  document.getElementById('chipAvatar').style.background = u ? (u.color || '#2147f4') : '#2147f4';
+  document.getElementById('chipName').textContent = name;
+  document.getElementById('chipSub').textContent = u ? (u.department || u.jobTitle || u.role || '') : '';
+  chip.classList.add('show');
+
+  document.getElementById('selectedUserName').value = name;
+  document.getElementById('selectedUserTeam').value = u ? (u.department || u.jobTitle || '') : '';
+
+  if (u) {
+    document.getElementById('existingTeamRow').style.display = '';
+    document.getElementById('existingTeam').value = u.department || u.jobTitle || '';
+  }
+}
+
+function clearUserSearch() {
+  document.getElementById('userSearch').value = '';
+  document.getElementById('searchDropdown').style.display = 'none';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('userChip').classList.remove('show');
+  document.getElementById('selectedUserName').value = '';
+  document.getElementById('selectedUserTeam').value = '';
+  document.getElementById('existingTeamRow').style.display = 'none';
+  document.getElementById('newUserBox').style.display = 'none';
+  document.getElementById('userSearch').focus();
+}
+
+function showNewUser() {
+  document.getElementById('searchDropdown').style.display = 'none';
+  document.getElementById('userChip').classList.remove('show');
+  document.getElementById('userSearch').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('existingTeamRow').style.display = 'none';
+  document.getElementById('selectedUserName').value = '__new__';
+  document.getElementById('newUserBox').style.display = 'block';
+  document.getElementById('newFirst').focus();
+}
+
+// ── Location ───────────────────────────────────────────────────
+function selectLocation(type) {
+  selectedLocation = type;
+  document.getElementById('locHQBtn').classList.toggle('selected', type === 'hq');
+  document.getElementById('locOtherBtn').classList.toggle('selected', type === 'other');
+  document.getElementById('hqBox').style.display     = type === 'hq'    ? 'block' : 'none';
+  document.getElementById('otherLocBox').style.display = type === 'other' ? 'block' : 'none';
+}
+
+// ── Navigation ─────────────────────────────────────────────────
+function renderProgress() {
+  const labels = ['Your Details', 'Contact Info', 'Training Details', 'Priorities'];
+  const track  = document.getElementById('progressTrack');
+  track.innerHTML = labels.map((label, i) => {
+    const n    = i + 1;
+    const done = n < step;
+    const act  = n === step;
+    return `
+      <div class="step-dot ${done ? 'done' : ''} ${act ? 'active' : ''}">${done ? '✓' : n}<span class="step-label">${label}</span></div>
+      ${i < labels.length - 1 ? `<div class="step-line ${done ? 'done' : ''}"></div>` : ''}`;
+  }).join('');
+}
+
+function updateNav() {
+  const isLast = step === TOTAL;
+  document.getElementById('backBtn').style.display  = step > 1 ? 'inline-flex' : 'none';
+  document.getElementById('skipBtn').style.display  = (step > 2 && SKIPPABLE.has(step)) ? 'inline-flex' : 'none';
+  document.getElementById('nextBtn').textContent    = isLast ? '✓ Submit Request' : 'Continue →';
+  document.getElementById('nextBtn').className      = isLast ? 'btn btn-success' : 'btn btn-primary';
+  document.getElementById('footerHint').textContent = step > 2
+    ? 'Steps 3 & 4 can be skipped and filled in later.' : '';
+}
+
+function showPane(n) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane' + n).classList.add('active');
+}
+
+function nextStep() {
+  if (!validate(step)) return;
+  if (step === TOTAL) { submitForm(); return; }
+  step++;
+  showPane(step);
+  renderProgress();
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep() {
+  if (step <= 1) return;
+  step--;
+  showPane(step);
+  renderProgress();
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function skipStep() {
+  if (!SKIPPABLE.has(step)) return;
+  skippedSteps.add(step);
+  step++;
+  showPane(step);
+  renderProgress();
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Validation ─────────────────────────────────────────────────
+function validate(s) {
+  if (s === 1) {
+    const picker = document.getElementById('selectedUserName').value;
+    if (!picker) { toast('Please search for and select your name', 'error'); return false; }
+    if (picker === '__new__') {
+      const fn   = document.getElementById('newFirst').value.trim();
+      const ln   = document.getElementById('newLast').value.trim();
+      const dept = document.getElementById('newDept').value.trim();
+      if (!fn || !ln || !dept) { toast('Please enter your first name, last name and department', 'error'); return false; }
+    }
+  }
+  if (s === 2) {
+    const email  = document.getElementById('email').value.trim();
+    const co     = document.getElementById('company').value.trim();
+    const stake  = document.getElementById('stakeholder').value.trim();
+    if (!email || !co || !stake) { toast('Email, company name and stakeholder name are required', 'error'); return false; }
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) { toast('Please enter a valid email address', 'error'); return false; }
+  }
+  return true;
+}
+
+// ── Submit ─────────────────────────────────────────────────────
+async function submitForm() {
+  document.getElementById('loadingOverlay').classList.add('show');
+
+  let submitterName = document.getElementById('selectedUserName').value;
+  let team = document.getElementById('selectedUserTeam').value ||
+             document.getElementById('existingTeam').value || '';
+
+  // Handle new user creation first
+  if (submitterName === '__new__') {
+    const fn   = document.getElementById('newFirst').value.trim();
+    const ln   = document.getElementById('newLast').value.trim();
+    const dept = document.getElementById('newDept').value.trim();
+    submitterName = fn + ' ' + ln;
+    team = dept;
+    // Save new user to sheet
+    try {
+      await fetch(SCRIPT_URL + '?action=saveUser&userId=u_form_' + Date.now()
+        + '&firstName=' + encodeURIComponent(fn)
+        + '&lastName='  + encodeURIComponent(ln)
+        + '&department=' + encodeURIComponent(dept)
+        + '&role=viewer&active=true&addedBy=Request+Form', { redirect: 'follow' });
+    } catch(e) { console.warn('Could not save new user:', e.message); }
+  }
+
+  const referralNotes = document.getElementById('referralNotes').value.trim();
+  const quotedValue   = document.getElementById('quotedValue').value.trim();
+  const email         = document.getElementById('email').value.trim();
+  const company       = document.getElementById('company').value.trim();
+  const stakeholder   = document.getElementById('stakeholder').value.trim();
+  const attendees     = document.getElementById('attendees').value.trim();
+  const goLive        = document.getElementById('goLive').value;
+  const preferredDate = document.getElementById('preferredDate').value;
+  const trainingType  = document.querySelector('[name="trainingType"]:checked')?.value || '';
+  const familiarity   = document.querySelector('[name="familiarity"]:checked')?.value  || '';
+  const areas         = [...document.querySelectorAll('[name="areas"]:checked')].map(e => e.value).join(', ');
+  const priorities    = document.getElementById('priorities').value.trim();
+  const features      = document.getElementById('features').value.trim();
+  const challenges    = document.getElementById('challenges').value.trim();
+  const followUp      = [...document.querySelectorAll('[name="followUp"]:checked')].map(e => e.value).join(', ');
+  const anythingElse  = document.getElementById('anythingElse').value.trim();
+
+  let location = '', parking = '', dietary = '';
+  if (selectedLocation === 'hq') {
+    location = 'Street HQ — North Square, 11–13 Spear St, Manchester M1 1JU';
+    dietary  = document.getElementById('dietaryHQ').value.trim();
+  } else if (selectedLocation === 'other') {
+    location = document.getElementById('locAddress').value.trim();
+    parking  = document.getElementById('locParking').value.trim();
+    const equip     = [...document.querySelectorAll('#equipGrid input:checked')].map(e => e.value).join(', ');
+    const equipOther = document.getElementById('equipOther').value.trim();
+    if (equip || equipOther) anythingElse && (anythingElse); // handled below
+  }
+
+  const skippedLabel = [...skippedSteps].map(s => SKIP_LABELS[s]).join(',');
+
+  const params = new URLSearchParams({
+    action:          'submitRequest',
+    email, company, stakeholder, attendees,
+    preferredDate, goLiveDate: goLive,
+    trainingType,   teamFamiliarity: familiarity,
+    areas, priorities, features, challenges,
+    location, parking, venueSetup: '', dietaryReqs: dietary,
+    followUp, anythingElse,
+    quotedValue,
+    referredByName:  submitterName,
+    referredByTeam:  team,
+    referralNotes,
+    submittedBy:     submitterName,
+    skippedSections: skippedLabel,
+    timestamp:       new Date().toISOString(),
+  });
+
+  try {
+    await fetch(SCRIPT_URL + '?' + params.toString(), { redirect: 'follow' });
+    document.getElementById('successMsg').textContent =
+      `Thanks ${submitterName}! Your request for ${company} has been submitted. Our team will review it and assign a trainer shortly.`;
+    document.getElementById('successRef').textContent =
+      `${company} · ${trainingType || 'Request logged'}`;
+    step = 5;
+    showPane(5);
+    document.getElementById('formFooter').style.display = 'none';
+    document.getElementById('progressTrack').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast('Request submitted successfully!', 'success');
+  } catch (e) {
+    toast('Something went wrong — please try again', 'error');
+  } finally {
+    document.getElementById('loadingOverlay').classList.remove('show');
+  }
+}
+
+// ── Reset ──────────────────────────────────────────────────────
+function resetForm() {
+  step = 1;
+  skippedSteps.clear();
+  selectedLocation = '';
+  document.getElementById('formFooter').style.display = '';
+  document.getElementById('progressTrack').style.display = '';
+  // Reset all inputs
+  document.querySelectorAll('.field-input, .field-select, .field-textarea').forEach(el => el.value = '');
+  document.querySelectorAll('input[type=radio], input[type=checkbox]').forEach(el => el.checked = false);
+  clearUserSearch();
+  document.getElementById('hqBox').style.display   = 'none';
+  document.getElementById('otherLocBox').style.display = 'none';
+  document.getElementById('locHQBtn').classList.remove('selected');
+  document.getElementById('locOtherBtn').classList.remove('selected');
+  showPane(1);
+  renderProgress();
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg, type = 'info', dur = 3500) {
+  const host = document.getElementById('toastHost');
+  const el   = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity 0.3s';
+    setTimeout(() => el.remove(), 300);
+  }, dur);
+}
+
+// ── Initial render ─────────────────────────────────────────────
+updateNav();
+</script>
+</body>
+</html>
