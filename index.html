@@ -1088,8 +1088,8 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCvBhFSPyyoaVsui0DC
 // ── State ──────────────────────────────────────────────────────
 let step        = 1;
 const TOTAL     = 4;
-const SKIPPABLE = new Set([3, 4]);
-const SKIP_LABELS = { 3: 'Training Details', 4: 'Priorities & Logistics' };
+const SKIPPABLE = new Set([3]);
+const SKIP_LABELS = { 3: 'Training Details' };
 let skippedSteps = new Set();
 
 let users       = [];
@@ -1251,7 +1251,7 @@ function updateNav() {
   document.getElementById('nextBtn').textContent    = isLast ? '✓ Submit Request' : 'Continue →';
   document.getElementById('nextBtn').className      = isLast ? 'btn btn-success' : 'btn btn-primary';
   document.getElementById('footerHint').textContent = step > 2
-    ? 'Steps 3 & 4 can be skipped and filled in later.' : '';
+    ? 'Step 3 can be skipped and filled in later.' : '';
 }
 
 function showPane(n) {
