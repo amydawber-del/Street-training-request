@@ -893,24 +893,45 @@ body {
             <label class="field-label req">Training Type</label>
             <div class="choice-group">
               <label class="choice-item">
-                <input type="radio" name="trainingType" value="Face-to-Face Training">
+                <input type="radio" name="trainingType" value="Bespoke Branch Training">
                 <div>
-                  <div class="choice-label">Face-to-Face Training</div>
-                  <div class="choice-sub">Personalised training delivered in person for your team. This can take place at your office or at Street HQ.</div>
+                  <div class="choice-label">Bespoke Branch Training</div>
+                  <div class="choice-sub">Personalised in-person training delivered at your office for your team. Available as a one or two-day session.</div>
                 </div>
               </label>
               <label class="choice-item">
-                <input type="radio" name="trainingType" value="Online Training / Refresher">
+                <input type="radio" name="trainingType" value="Bespoke HQ Training">
                 <div>
-                  <div class="choice-label">Online Training / Refresher</div>
-                  <div class="choice-sub">A live remote session with a Street trainer to refresh knowledge, answer questions, or cover specific areas.</div>
+                  <div class="choice-label">Bespoke HQ Training</div>
+                  <div class="choice-sub">Personalised in-person training delivered at Street HQ for your team. Available as a one or two-day session and charged per attendee.</div>
                 </div>
               </label>
               <label class="choice-item">
-                <input type="radio" name="trainingType" value="Street Hosted Training Event">
+                <input type="radio" name="trainingType" value="Accounting Training &amp; Go-Live Support">
                 <div>
-                  <div class="choice-label">Street Hosted Training Event</div>
-                  <div class="choice-sub">Join us at Street HQ for a dedicated in-person training session with a Street trainer.</div>
+                  <div class="choice-label">Accounting Training &amp; Go-Live Support</div>
+                  <div class="choice-sub">A personalised accounting-focused session to support training, go-live preparation, and hands-on accounting workflows. This can take place at your office or Street HQ.</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Remote Refresher Training">
+                <div>
+                  <div class="choice-label">Remote Refresher Training</div>
+                  <div class="choice-sub">A live online session with a Street trainer to refresh knowledge, answer questions, or cover specific areas.</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Street Hosted Open Training Event">
+                <div>
+                  <div class="choice-label">Street Hosted Open Training Event</div>
+                  <div class="choice-sub">A Street-hosted training day at Street HQ with a set agenda, open to multiple clients or attendees.</div>
+                </div>
+              </label>
+              <label class="choice-item">
+                <input type="radio" name="trainingType" value="Self-Led Learning">
+                <div>
+                  <div class="choice-label">Self-Led Learning</div>
+                  <div class="choice-sub">Free access to on-demand video tutorials, Streetwise content, and Help Centre resources.</div>
                 </div>
               </label>
               <label class="choice-item">
@@ -1084,6 +1105,85 @@ body {
 <script>
 // ── Config ─────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCvBhFSPyyoaVsui0DCxvGQQa0V7e_UCJ5LfqvcSysTHTFlNRcx4ewlET5TyouJ0ZYow/exec';
+
+// Reporting attributes for each training type — flows through to Sheet/Slack/HubSpot
+const TRAINING_TYPE_REPORTING = {
+  'Bespoke Branch Training': {
+    trainingCategory: 'Bespoke Training',
+    deliveryLocation: 'Agent Branch',
+    deliveryMethod:   'In Person',
+    duration:         'One or Two Days',
+    agendaType:       'Personalised',
+    pricingModel:     'Fixed Fee',
+    priceExVat:       '£1,100 for 1 day / £1,850 for 2 days',
+    vatApplies:       'Yes',
+  },
+  'Bespoke HQ Training': {
+    trainingCategory: 'Bespoke Training',
+    deliveryLocation: 'Street HQ',
+    deliveryMethod:   'In Person',
+    duration:         'One or Two Days',
+    agendaType:       'Personalised',
+    pricingModel:     'Per Person',
+    priceExVat:       '£220 per person',
+    vatApplies:       'Yes',
+  },
+  'Accounting Training & Go-Live Support': {
+    trainingCategory: 'Accounting Training',
+    deliveryLocation: 'Street HQ or Agent Branch',
+    deliveryMethod:   'In Person',
+    duration:         '1 Day',
+    agendaType:       'Personalised',
+    pricingModel:     'Fixed Fee',
+    priceExVat:       '£1,000',
+    vatApplies:       'Yes',
+  },
+  'Remote Refresher Training': {
+    trainingCategory: 'Refresher Training',
+    deliveryLocation: 'Online',
+    deliveryMethod:   'Remote',
+    duration:         'TBC',
+    agendaType:       'Personalised / Refresher',
+    pricingModel:     'TBC',
+    priceExVat:       'TBC',
+    vatApplies:       'TBC',
+  },
+  'Street Hosted Open Training Event': {
+    trainingCategory: 'Street Hosted Event',
+    deliveryLocation: 'Street HQ',
+    deliveryMethod:   'In Person',
+    duration:         'TBC',
+    agendaType:       'Set Agenda',
+    pricingModel:     'POA',
+    priceExVat:       'POA',
+    vatApplies:       'Yes',
+  },
+  'Self-Led Learning': {
+    trainingCategory: 'Self-Led Learning',
+    deliveryLocation: 'Online',
+    deliveryMethod:   'On Demand',
+    duration:         'Flexible',
+    agendaType:       'Self-Led',
+    pricingModel:     'Free',
+    priceExVat:       '£0',
+    vatApplies:       'No',
+  },
+  'Not Sure – Help Me Choose': {
+    trainingCategory: 'Recommendation Needed',
+    deliveryLocation: 'TBC',
+    deliveryMethod:   'TBC',
+    duration:         'TBC',
+    agendaType:       'TBC',
+    pricingModel:     'TBC',
+    priceExVat:       'TBC',
+    vatApplies:       'TBC',
+  },
+};
+
+const EMPTY_REPORTING = {
+  trainingCategory: '', deliveryLocation: '', deliveryMethod: '', duration: '',
+  agendaType: '', pricingModel: '', priceExVat: '', vatApplies: '',
+};
 
 // ── State ──────────────────────────────────────────────────────
 let step        = 1;
@@ -1342,6 +1442,7 @@ async function submitForm() {
   const goLive        = document.getElementById('goLive').value;
   const preferredDate = document.getElementById('preferredDate').value;
   const trainingType  = document.querySelector('[name="trainingType"]:checked')?.value || '';
+  const trainingReporting = TRAINING_TYPE_REPORTING[trainingType] || EMPTY_REPORTING;
   const familiarity   = document.querySelector('[name="familiarity"]:checked')?.value  || '';
   const areas         = [...document.querySelectorAll('[name="areas"]:checked')].map(e => e.value).join(', ');
   const priorities    = document.getElementById('priorities').value.trim();
@@ -1366,6 +1467,7 @@ async function submitForm() {
     email, company, stakeholder, attendees,
     preferredDate, goLiveDate: goLive,
     trainingType,   teamFamiliarity: familiarity,
+    ...trainingReporting,
     areas, priorities, features, challenges,
     location, parking, venueSetup: '', dietaryReqs: dietary,
     followUp, anythingElse,
