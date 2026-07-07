@@ -891,56 +891,8 @@ body {
 
           <div class="field">
             <label class="field-label req">Training Type</label>
-            <div class="choice-group">
-              <label class="choice-item">
-                <input type="radio" name="trainingType" value="Bespoke Branch Training">
-                <div>
-                  <div class="choice-label">Bespoke Branch Training</div>
-                  <div class="choice-sub">Personalised in-person training delivered at your office for your team. Available as a one or two-day session.</div>
-                </div>
-              </label>
-              <label class="choice-item">
-                <input type="radio" name="trainingType" value="Bespoke HQ Training">
-                <div>
-                  <div class="choice-label">Bespoke HQ Training</div>
-                  <div class="choice-sub">Personalised in-person training delivered at Street HQ for your team. Available as a one or two-day session and charged per attendee.</div>
-                </div>
-              </label>
-              <label class="choice-item">
-                <input type="radio" name="trainingType" value="Accounting Training &amp; Go-Live Support">
-                <div>
-                  <div class="choice-label">Accounting Training &amp; Go-Live Support</div>
-                  <div class="choice-sub">A personalised accounting-focused session to support training, go-live preparation, and hands-on accounting workflows. This can take place at your office or Street HQ.</div>
-                </div>
-              </label>
-              <label class="choice-item">
-                <input type="radio" name="trainingType" value="Remote Refresher Training">
-                <div>
-                  <div class="choice-label">Remote Refresher Training</div>
-                  <div class="choice-sub">A live online session with a Street trainer to refresh knowledge, answer questions, or cover specific areas.</div>
-                </div>
-              </label>
-              <label class="choice-item">
-                <input type="radio" name="trainingType" value="Street Hosted Open Training Event">
-                <div>
-                  <div class="choice-label">Street Hosted Open Training Event</div>
-                  <div class="choice-sub">A Street-hosted training day at Street HQ with a set agenda, open to multiple clients or attendees.</div>
-                </div>
-              </label>
-              <label class="choice-item">
-                <input type="radio" name="trainingType" value="Self-Led Learning">
-                <div>
-                  <div class="choice-label">Self-Led Learning</div>
-                  <div class="choice-sub">Free access to on-demand video tutorials, Streetwise content, and Help Centre resources.</div>
-                </div>
-              </label>
-              <label class="choice-item">
-                <input type="radio" name="trainingType" value="Not Sure – Help Me Choose">
-                <div>
-                  <div class="choice-label">Not Sure – Help Me Choose</div>
-                  <div class="choice-sub">Not sure which option is best? The training team will review your request and recommend the right format.</div>
-                </div>
-              </label>
+            <div class="choice-group" id="trainingTypeGroup">
+              <div class="choice-sub" style="padding:8px 0;">Loading training options…</div>
             </div>
           </div>
 
@@ -1185,6 +1137,19 @@ const EMPTY_REPORTING = {
   agendaType: '', pricingModel: '', priceExVat: '', vatApplies: '',
 };
 
+// Sub-text shown under each Training Type option. Keyed by the exact
+// "Training Type" value from the sheet. If a new type is added to the
+// sheet without an entry here, it still renders — just without a sub-line.
+const TRAINING_TYPE_DESCRIPTIONS = {
+  'Bespoke Branch Training': 'Personalised in-person training delivered at your office for your team. Available as a one or two-day session.',
+  'Bespoke HQ Training': 'Personalised in-person training delivered at Street HQ for your team. Available as a one or two-day session and charged per attendee.',
+  'Accounting Training & Go-Live Support': 'A personalised accounting-focused session to support training, go-live preparation, and hands-on accounting workflows. This can take place at your office or Street HQ.',
+  'Remote Refresher Training': 'A live online session with a Street trainer to refresh knowledge, answer questions, or cover specific areas.',
+  'Street Hosted Open Training Event': 'A Street-hosted training day at Street HQ with a set agenda, open to multiple clients or attendees.',
+  'Self-Led Learning': 'Free access to on-demand video tutorials, Streetwise content, and Help Centre resources.',
+  'Not Sure – Help Me Choose': 'Not sure which option is best? The training team will review your request and recommend the right format.',
+};
+
 // ── State ──────────────────────────────────────────────────────
 let step        = 1;
 const TOTAL     = 4;
@@ -1194,12 +1159,13 @@ let skippedSteps = new Set();
 
 let users       = [];
 let departments = [];
+let trainingTypes = [];
 let selectedLocation = '';
 
 // ── Init ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   renderProgress();
-  await Promise.all([loadUsers(), loadDepartments()]);
+  await Promise.all([loadUsers(), loadDepartments(), loadTrainingTypes()]);
 });
 
 // ── Load users ─────────────────────────────────────────────────
@@ -1224,6 +1190,45 @@ async function loadDepartments() {
     }
   } catch (e) {
     console.warn('Could not load departments:', e.message);
+  }
+}
+
+// ── Load training types ─────────────────────────────────────────
+async function loadTrainingTypes() {
+  const group = document.getElementById('trainingTypeGroup');
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=getTrainingTypes&t=' + Date.now(), { redirect: 'follow' });
+    const j = await r.json();
+    if (j.success && j.trainingTypes && j.trainingTypes.length) {
+      trainingTypes = j.trainingTypes;
+    } else {
+      console.warn('getTrainingTypes returned no active types — falling back to defaults.');
+      trainingTypes = Object.keys(TRAINING_TYPE_DESCRIPTIONS);
+    }
+  } catch (e) {
+    console.warn('Could not load training types, falling back to defaults:', e.message);
+    trainingTypes = Object.keys(TRAINING_TYPE_DESCRIPTIONS);
+  }
+  renderTrainingTypeOptions();
+}
+
+function renderTrainingTypeOptions() {
+  const group = document.getElementById('trainingTypeGroup');
+  if (!group) return;
+  const prevChecked = document.querySelector('[name="trainingType"]:checked')?.value || '';
+  group.innerHTML = trainingTypes.map(name => {
+    const sub = TRAINING_TYPE_DESCRIPTIONS[name] || '';
+    return `<label class="choice-item">
+      <input type="radio" name="trainingType" value="${esc(name)}">
+      <div>
+        <div class="choice-label">${esc(name)}</div>
+        ${sub ? `<div class="choice-sub">${esc(sub)}</div>` : ''}
+      </div>
+    </label>`;
+  }).join('');
+  if (prevChecked) {
+    const input = group.querySelector(`input[value="${CSS.escape(prevChecked)}"]`);
+    if (input) input.checked = true;
   }
 }
 
