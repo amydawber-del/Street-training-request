@@ -1058,6 +1058,31 @@ body {
 // ── Config ─────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCvBhFSPyyoaVsui0DCxvGQQa0V7e_UCJ5LfqvcSysTHTFlNRcx4ewlET5TyouJ0ZYow/exec';
 
+// ── JSONP request helper ──────────────────────────────────────
+// Replaces plain fetch() for calls to the Apps Script backend.
+// fetch() GETs to script.google.com can intermittently 404 on the
+// redirect leg to script.googleusercontent.com (browser SameSite /
+// third-party cookie restrictions) — the backend's doGet/_respond
+// now supports JSONP (a &callback= param wraps the JSON response in
+// a script-tag-friendly function call) specifically to route around
+// that. This is the same pattern the rest of the dashboard uses.
+function jsonpRequest(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__gascb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => { cleanup(); reject(new Error('Request timed out')); }, 15000);
+    function cleanup() {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+    }
+    window[cbName] = function(data) { cleanup(); resolve(data); };
+    script.onerror = function() { cleanup(); reject(new Error('JSONP request failed')); };
+    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
+    document.body.appendChild(script);
+  });
+}
+
 // Reporting attributes for each training type — flows through to Sheet/Slack/HubSpot
 const TRAINING_TYPE_REPORTING = {
   'Bespoke Branch Training': {
@@ -1171,8 +1196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ── Load users ─────────────────────────────────────────────────
 async function loadUsers() {
   try {
-    const r = await fetch(SCRIPT_URL + '?action=getUsers&t=' + Date.now(), { redirect: 'follow' });
-    const j = await r.json();
+    const j = await jsonpRequest(SCRIPT_URL + '?action=getUsers&t=' + Date.now());
     if (j.success && j.users) users = j.users.filter(u => u.active !== false);
   } catch (e) {
     console.warn('Could not load users:', e.message);
@@ -1182,8 +1206,7 @@ async function loadUsers() {
 // ── Load departments ───────────────────────────────────────────
 async function loadDepartments() {
   try {
-    const r = await fetch(SCRIPT_URL + '?action=getDepartments&t=' + Date.now(), { redirect: 'follow' });
-    const j = await r.json();
+    const j = await jsonpRequest(SCRIPT_URL + '?action=getDepartments&t=' + Date.now());
     if (j.success && j.departments) {
       departments = j.departments;
       populateDeptDropdowns();
@@ -1197,8 +1220,7 @@ async function loadDepartments() {
 async function loadTrainingTypes() {
   const group = document.getElementById('trainingTypeGroup');
   try {
-    const r = await fetch(SCRIPT_URL + '?action=getTrainingTypes&t=' + Date.now(), { redirect: 'follow' });
-    const j = await r.json();
+    const j = await jsonpRequest(SCRIPT_URL + '?action=getTrainingTypes&t=' + Date.now());
     if (j.success && j.trainingTypes && j.trainingTypes.length) {
       trainingTypes = j.trainingTypes;
     } else {
@@ -1430,11 +1452,11 @@ async function submitForm() {
     submitterName = fn + ' ' + ln;
     team = dept;
     try {
-      await fetch(SCRIPT_URL + '?action=saveUser&userId=u_form_' + Date.now()
+      await jsonpRequest(SCRIPT_URL + '?action=saveUser&userId=u_form_' + Date.now()
         + '&firstName=' + encodeURIComponent(fn)
         + '&lastName='  + encodeURIComponent(ln)
         + '&department=' + encodeURIComponent(dept)
-        + '&role=viewer&active=true&addedBy=Request+Form', { redirect: 'follow' });
+        + '&role=viewer&active=true&addedBy=Request+Form');
     } catch(e) { console.warn('Could not save new user:', e.message); }
   }
 
@@ -1486,7 +1508,10 @@ async function submitForm() {
   });
 
   try {
-    await fetch(SCRIPT_URL + '?' + params.toString(), { redirect: 'follow' });
+    const result = await jsonpRequest(SCRIPT_URL + '?' + params.toString());
+    if (!result || result.success !== true) {
+      throw new Error(result && result.error ? result.error : 'Submission failed — please try again or check with Amy.');
+    }
     document.getElementById('successMsg').textContent =
       `Thanks ${submitterName}! Your request for ${company} has been submitted. Our team will review it and assign a trainer shortly.`;
     document.getElementById('successRef').textContent =
@@ -1498,7 +1523,7 @@ async function submitForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     toast('Request submitted successfully!', 'success');
   } catch (e) {
-    toast('Something went wrong — please try again', 'error');
+    toast('Something went wrong — please try again (' + e.message + ')', 'error');
   } finally {
     document.getElementById('loadingOverlay').classList.remove('show');
   }
